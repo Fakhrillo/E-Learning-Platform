@@ -8,7 +8,7 @@
     <h1>Course "{{ course.title }}"</h1>
     <div class="contents">
         <h3>Modules</h3>
-        <ul id="modules">
+        <ul id="modules" class="module-list">
             {% for mod in course.modules.all %}
                 <li data-id="{{ mod.id }}" {% if mod.id == module.id %}class="selected"{% endif %}>
                     <a href="{% url "module_content_list" mod.id %}">
@@ -20,49 +20,52 @@
                     </a>
                 </li>
             {% empty %}
-                <p>No modules available.</p>
+                <li class="empty">No modules available.</li>
             {% endfor %}
         </ul>
-        <p><a href="{% url "course_module_update" course.id %}">Edit modules</a></p>
+        <p class="top-gap"><a href="{% url "course_module_update" course.id %}" class="button sm">Edit modules</a></p>
     </div>
     <div class="module">
         <h2>Module {{ module.order|add:1 }}: {{ module.title }}</h2>
-        <h3>Module contents:<h3>
-        <div id="module-contents">
+        <h3>Module contents:</h3>
+        <div id="module-contents" class="content-list">
             {% for content in module.contents.all %}
-                <div data-id="{{ content.id }}">
+                <div data-id="{{ content.id }}" class="content-item">
                     {% with item=content.item %}
                         <p>{{ item }} ({{ item|model_name }})</p>
-                        <a href="{% url "content_update" module.id item|model_name item.id %}">Edit</a>
-                        <form action="{% url "module_content_delete" content.id %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="submit" value="Delete">
-                        </form>
+                        <div class="actions">
+                            <a href="{% url "content_update" module.id item|model_name item.id %}" class="button sm">Edit</a>
+                            <form action="{% url "module_content_delete" content.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" value="Delete" class="button sm danger">
+                            </form>
+                        </div>
                     {% endwith %}
                 </div>
             {% empty %}
-                <p>No contents in this module.</p>
+                <div class="empty">No contents in this module.</div>
             {% endfor %}
         </div>
         <h3>Add new content</h3>
         <ul class="content-types">
-            <li><a href="{% url "content_create" module.id "text" %}">Text</a></li>
-            <li><a href="{% url "content_create" module.id "video" %}">Video</a></li>
-            <li><a href="{% url "content_create" module.id "image" %}">Image</a></li>
-            <li><a href="{% url "content_create" module.id "file" %}">File</a></li>
+            <li><a href="{% url "content_create" module.id "text" %}" class="chip">Text</a></li>
+            <li><a href="{% url "content_create" module.id "video" %}" class="chip">Video</a></li>
+            <li><a href="{% url "content_create" module.id "image" %}" class="chip">Image</a></li>
+            <li><a href="{% url "content_create" module.id "file" %}" class="chip">File</a></li>
         </ul>
     </div>
 {% endwith %}
 {% endblock %}
 
 {% block include_js %}
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js"></script>
 {% endblock %}
 
 {% block domready %}
     var options = {
         method: 'POST',
-        mode: 'same-origin'
+        mode: 'same-origin',
+        headers: {'Content-Type': 'application/json'}
     };
     const moduleOrderUrl = "{% url "module_order" module.id %}";
 
@@ -70,8 +73,8 @@
         forcePlaceholderSize: true,
         placeholderClass: 'placeholder'
     })[0].addEventListener('sortupdate', (e) => {
-        modulesOrder = {};
-        var modules = document.querySelectorAll('#modules li');
+        const modulesOrder = {};
+        var modules = document.querySelectorAll('#modules li[data-id]');
         modules.forEach((module, index) => {
             modulesOrder[module.dataset.id] = index;
             module.querySelector('.order').innerHTML = index + 1;
@@ -85,8 +88,8 @@
         forcePlaceholderSize: true,
         placeholderClass: 'placeholder'
     })[0].addEventListener('sortupdate', (e) => {
-        contentsOrder = {};
-        var contents = document.querySelectorAll('#module-contents div');
+        const contentsOrder = {};
+        var contents = document.querySelectorAll('#module-contents [data-id]');
         contents.forEach((content, index) => {
             contentsOrder[content.dataset.id] = index;
         });

@@ -4,13 +4,31 @@
 
 {% block content %}
     <h1>Edit "{{ course.title }}"</h1>
-    <div class="module">
+    <div class="module form-card">
         <h2>Course Modules</h2>
-        <form method="post">
-            {{ formset }}
-            {{ formset.management_form }}
+        <form method="post" class="form">
             {% csrf_token %}
-            <p><input type="submit" value="Save Modules"></p>
+            {{ formset.management_form }}
+            <div class="formset">
+                {% for form in formset %}
+                    <div class="formset-row">
+                        {{ form.id }}
+                        <div class="field">
+                            <label for="{{ form.title.id_for_label }}">Title</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="field">
+                            <label for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="field checkbox-row">
+                            {{ form.DELETE }}
+                            <label for="{{ form.DELETE.id_for_label }}" class="sr-only">Delete</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <p><input type="submit" value="Save Modules" class="button"></p>
         </form>
     </div>
 {% endblock %}

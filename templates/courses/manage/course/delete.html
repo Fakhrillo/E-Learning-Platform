@@ -4,11 +4,14 @@
 
 {% block content %}
     <h1>Delete course "{{ object.title }}"</h1>
-    <div class="module">
-        <form action="" method="post">
+    <div class="module form-card">
+        <form action="" method="post" class="form">
             {% csrf_token %}
             <p>Are you sure you want to delete "{{ object }}"?</p>
-            <input type="submit" value="Confirm">
+            <div class="actions">
+                <input type="submit" value="Confirm" class="button danger">
+                <a href="{% url 'manage_course_list' %}" class="button ghost">Cancel</a>
+            </div>
         </form>
     </div>
 {% endblock %}

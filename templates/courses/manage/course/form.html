@@ -12,18 +12,18 @@
 
 {% block content %}
     <h1>
-    {% if object %}
-        Edit course "{{ object.title }}"
-    {% else %}
-        Create a new course
-    {% endif %}
+        {% if object %}
+            Edit course "{{ object.title }}"
+        {% else %}
+            Create a new course
+        {% endif %}
     </h1>
-    <div class="module">
+    <div class="module form-card">
         <h2>Course info</h2>
-        <form method="post">
-            {{ form.as_p }}
+        <form method="post" class="form">
             {% csrf_token %}
-            <p><input type="submit" value="Save course"></p>
+            {{ form.as_p }}
+            <p><input type="submit" value="Save course" class="button"></p>
         </form>
     </div>
 {% endblock %}
