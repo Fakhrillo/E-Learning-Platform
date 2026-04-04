@@ -1,33 +1,174 @@
 {% extends "base.html" %}
 
-{% block title %}My courses{% endblock %}
+{% block title %}
+    {% if subject %}
+        {{ subject.title }} courses
+    {% else %}
+        All courses
+    {% endif %}
+{% endblock %}
 
 {% block content %}
-    <section class="page-header">
-        <h1>My courses</h1>
-        <a href="{% url 'course_create' %}" class="button">Create new course</a>
-    </section>
-    <div class="card-grid">
-        {% for course in object_list %}
+<div class="library-shell">
+    {% if subjects %}
+        <aside class="contents subject-panel library-sidebar">
+            <p class="eyebrow">Subjects</p>
+            <h2 class="sidebar-title">Explore tracks</h2>
+            <p class="sidebar-copy">Filter the catalog by discipline and compare how many courses sit in each stream.</p>
+            <h3>Subjects</h3>
+            <ul class="module-list subject-list">
+                <li {% if not subject %}class="selected"{% endif %}>
+                    <a href="{% url 'course_list' %}">All</a>
+                    <span class="subject-count">{{ courses|length }} available</span>
+                </li>
+                {% for s in subjects %}
+                    <li {% if subject == s %}class="selected"{% endif %}>
+                        <a href="{% url 'course_list_subject' s.slug %}" class="subject-link">
+                            <span>{{ s.title }}</span>
+                            <span class="subject-count">{{ s.total_courses }} course{{ s.total_courses|pluralize }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+    {% else %}
+        <aside class="contents subject-panel library-sidebar">
+            <p class="eyebrow">Workspace</p>
+            <h2 class="sidebar-title">Your space</h2>
+            <p class="sidebar-copy">Switch between your private management view and the public course catalog.</p>
+            <h3>Workspace</h3>
+            <ul class="module-list subject-list">
+                <li class="selected">
+                    <a href="{% url 'manage_course_list' %}">Your courses</a>
+                    <span class="subject-count">{{ object_list|length }} total</span>
+                </li>
+                <li>
+                    <a href="{% url 'course_list' %}">Public catalog</a>
+                    <span class="subject-count">Browse all</span>
+                </li>
+            </ul>
+        </aside>
+    {% endif %}
+
+    <section class="course-feed library-main">
+        <section class="page-header library-header">
+            <div>
+                <p class="eyebrow">{% if subjects %}Course library{% else %}Course management{% endif %}</p>
+                <h1>
+                    {% if subject %}
+                        {{ subject.title }} courses
+                    {% elif object_list %}
+                        My courses
+                    {% else %}
+                        All courses
+                    {% endif %}
+                </h1>
+                <p class="page-copy">
+                    {% if subjects %}
+                        Browse by subject, inspect the course mix, and jump straight into management actions.
+                    {% else %}
+                        Review the courses you own and move directly into editing, modules, or content management.
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{% url 'course_create' %}" class="button">Create new course</a>
+        </section>
+        <div class="feed-bar library-feed-bar">
+            <p class="muted">
+                {% if subject %}
+                    {{ courses|length }} course{{ courses|length|pluralize }} in {{ subject.title }}
+                {% elif object_list %}
+                    {{ object_list|length }} course{{ object_list|length|pluralize }} you own
+                {% else %}
+                    {{ courses|length }} course{{ courses|length|pluralize }} across all subjects
+                {% endif %}
+            </p>
+        </div>
+        <div class="card-grid">
+        {% if courses %}
+            {% for course in courses %}
+                <article class="card course-card">
+                    <div class="course-card-head">
+                        <span class="pill">
+                            <a href="{% url 'course_list_subject' course.subject.slug %}">{{ course.subject }}</a>
+                        </span>
+                    </div>
+                    <h3 class="course-title">
+                        <a href="{% url 'course_detail' course.slug %}">
+                            {{ course.title }}
+                        </a>
+                    </h3>
+                    <p class="course-overview">{{ course.overview|truncatewords:22 }}</p>
+                    <div class="course-meta">
+                        <div class="meta-block">
+                            <span class="meta-label">Modules</span>
+                            <strong>{{ course.total_modules }}</strong>
+                        </div>
+                        <div class="meta-block">
+                            <span class="meta-label">Instructor</span>
+                            <strong>{% firstof course.owner.get_full_name course.owner.username %}</strong>
+                        </div>
+                    </div>
+                    <div class="card-actions split">
+                        <a href="{% url 'course_edit' course.id %}" class="button edit-primary">Edit course</a>
+                        <details class="menu">
+                            <summary class="icon-button" aria-label="More options">...</summary>
+                            <div class="menu-list" role="menu">
+                                <a href="{% url 'course_detail' course.slug %}" class="menu-item">Open course</a>
+                                {% if course.modules.count > 0 %}
+                                    <a href="{% url 'module_content_list' course.modules.first.id %}" class="menu-item">Manage contents</a>
+                                {% endif %}
+                                <a href="{% url 'course_module_update' course.id %}" class="menu-item">Edit modules</a>
+                                <a href="{% url 'course_delete' course.id %}" class="menu-item danger-link">Delete</a>
+                            </div>
+                        </details>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty">No courses found.</p>
+            {% endfor %}
+        {% else %}
+            {% for course in object_list %}
             <article class="card course-card">
-                <h3>{{ course.title }}</h3>
-                <p class="muted">Modules: {{ course.modules.count }}</p>
+                <div class="course-card-head">
+                    <span class="pill">{{ course.subject }}</span>
+                </div>
+                <h3 class="course-title">
+                    <a href="{% url 'course_detail' course.slug %}">
+                        {{ course.title }}
+                    </a>
+                </h3>
+                <p class="course-overview">{{ course.overview|truncatewords:22 }}</p>
+                <div class="course-meta">
+                    <div class="meta-block">
+                        <span class="meta-label">Modules</span>
+                        <strong>{{ course.total_modules }}</strong>
+                    </div>
+                    <div class="meta-block">
+                        <span class="meta-label">Instructor</span>
+                        <strong>{% firstof course.owner.get_full_name course.owner.username %}</strong>
+                    </div>
+                </div>
                 <div class="card-actions split">
                     <a href="{% url 'course_edit' course.id %}" class="button edit-primary">Edit course</a>
                     <details class="menu">
                         <summary class="icon-button" aria-label="More options">...</summary>
                         <div class="menu-list" role="menu">
+                            <a href="{% url 'course_detail' course.slug %}" class="menu-item">Open course</a>
                             {% if course.modules.count > 0 %}
-                                <a href="{% url "module_content_list" course.modules.first.id %}" class="menu-item">Manage contents</a>
+                                <a href="{% url 'module_content_list' course.modules.first.id %}" class="menu-item">Manage contents</a>
                             {% endif %}
-                            <a href="{% url "course_module_update" course.id %}" class="menu-item">Edit modules</a>
+                            <a href="{% url 'course_module_update' course.id %}" class="menu-item">Edit modules</a>
                             <a href="{% url 'course_delete' course.id %}" class="menu-item danger-link">Delete</a>
                         </div>
                     </details>
                 </div>
             </article>
-        {% empty %}
-            <p class="empty">You haven't created any courses yet.</p>
-        {% endfor %}
-    </div>
+            {% empty %}
+                <p class="empty">You haven't created any courses yet.</p>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </section>
+</div>
 {% endblock %}

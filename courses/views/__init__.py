@@ -1,5 +1,5 @@
 from .mixins import OwnerMixin, OwnerEditMixin, OwnerCourseMixin, OwnerCourseEditMixin
-from .course import ManageCourseListView, CourseCreateView, CourseUpdateView, CourseDeleteView
+from .course import ManageCourseListView, CourseCreateView, CourseUpdateView, CourseDeleteView, CourseListView, CourseDetailView
 from .module import CourseModuleUpdateView, ModuleContentListView
 from .content import ContentCreateUpdateView, ContentDeleteView
 from .order import ModuleOrderView, ContentOrderView
@@ -19,4 +19,6 @@ __all__ = [
     "ContentDeleteView",
     "ModuleOrderView",
     "ContentOrderView",
+    "CourseListView",
+    "CourseDetailView"
 ]

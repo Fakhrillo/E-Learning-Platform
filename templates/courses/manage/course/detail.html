@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ object.title }}
+{% endblock %}
+
+{% block content %}
+    <div class="detail-shell">
+        <aside class="contents subject-panel detail-subjects">
+            <p class="eyebrow">Subjects</p>
+            <h2 class="sidebar-title">Course map</h2>
+            <p class="sidebar-copy">Switch subject context directly from the course page.</p>
+            <ul class="module-list subject-list">
+                <li>
+                    <a href="{% url 'course_list' %}">All subjects</a>
+                    <span class="subject-count">Browse</span>
+                </li>
+                {% for s in subjects %}
+                    <li {% if current_subject == s %}class="selected"{% endif %}>
+                        <a href="{% url 'course_list_subject' s.slug %}" class="subject-link">
+                            <span>{{ s.title }}</span>
+                            <span class="subject-count">{{ s.total_courses }} course{{ s.total_courses|pluralize }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <section class="detail-main-pane">
+            <section class="detail-banner">
+                <div class="detail-banner-copy">
+                    <p class="eyebrow">Course detail</p>
+                    <h1>{{ object.title }}</h1>
+                    <p class="page-copy">A structured view of this course, with clean spacing for overview and module roadmap.</p>
+                </div>
+                <div class="detail-banner-actions">
+                    <a href="{% url 'course_edit' object.id %}" class="button">Edit course</a>
+                    <a href="{% url 'course_module_update' object.id %}" class="button ghost">Edit modules</a>
+                </div>
+            </section>
+
+            <section class="detail-stats">
+                <article class="meta-block">
+                    <span class="meta-label">Subject</span>
+                    <strong><a href="{% url 'course_list_subject' object.subject.slug %}">{{ object.subject.title }}</a></strong>
+                </article>
+                <article class="meta-block">
+                    <span class="meta-label">Instructor</span>
+                    <strong>{% firstof object.owner.get_full_name object.owner.username %}</strong>
+                </article>
+                <article class="meta-block">
+                    <span class="meta-label">Modules</span>
+                    <strong>{{ object.modules.count }}</strong>
+                </article>
+            </section>
+
+            <section class="story-panel">
+                <div class="story-panel-head">
+                    <span class="pill">{{ object.subject.title }}</span>
+                    <span class="meta-inline">{{ object.modules.count }} module{{ object.modules.count|pluralize }}</span>
+                </div>
+                <h2>Overview</h2>
+                <div class="rich-copy lead-copy">
+                    {{ object.overview|linebreaks }}
+                </div>
+            </section>
+
+            <section class="module">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Roadmap</p>
+                        <h2>Module sequence</h2>
+                    </div>
+                </div>
+                <div class="timeline">
+                    {% for module in object.modules.all %}
+                        <article class="timeline-item">
+                            <div class="timeline-marker">{{ forloop.counter }}</div>
+                            <div class="timeline-body">
+                                <h3>{{ module.title }}</h3>
+                                {% if module.description %}
+                                    <p>{{ module.description }}</p>
+                                {% else %}
+                                    <p class="muted">No description added for this module yet.</p>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% empty %}
+                        <p class="empty">No modules added yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </section>
+    </div>
+{% endblock %}
