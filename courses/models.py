@@ -4,6 +4,7 @@ from model_utils.models import TimeStampedModel
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from courses.fields import OrderField
+from django.template.loader import render_to_string
 # Create your models here.
 
 class Subject(models.Model):
@@ -23,6 +24,7 @@ class Course(TimeStampedModel):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     overview = models.TextField()
+    students = models.ManyToManyField(User, related_name='courses_joined', blank=True)
 
     class Meta:
         ordering = ['-created']
@@ -64,6 +66,9 @@ class ItemBase(TimeStampedModel):
 
     def __str__(self):
         return self.title
+    
+    def render(self):
+        return render_to_string(f"courses/content/{self._meta.model_name}.html", {"item": self})
 
 
 class Text(ItemBase):

@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 
 from .mixins import OwnerCourseMixin, OwnerCourseEditMixin
 
+from students.forms import CourseEnrollForm
+
 
 class ManageCourseListView(OwnerCourseMixin, ListView):
     template_name = "courses/manage/course/list.html"
@@ -50,7 +52,11 @@ class CourseDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context["enroll_form"] = CourseEnrollForm(initial={"course": self.object})
         context["subjects"] = Subject.objects.annotate(total_courses=Count("courses"))
         context["current_subject"] = self.object.subject
+        context["is_owner"] = user.is_authenticated and self.object.owner_id == user.id
+        context["is_enrolled"] = user.is_authenticated and self.object.students.filter(id=user.id).exists()
         return context
     

@@ -34,8 +34,20 @@
                     <p class="page-copy">A structured view of this course, with clean spacing for overview and module roadmap.</p>
                 </div>
                 <div class="detail-banner-actions">
-                    <a href="{% url 'course_edit' object.id %}" class="button">Edit course</a>
-                    <a href="{% url 'course_module_update' object.id %}" class="button ghost">Edit modules</a>
+                    {% if is_owner %}
+                        <a href="{% url 'course_edit' object.id %}" class="button">Edit course</a>
+                        <a href="{% url 'course_module_update' object.id %}" class="button ghost">Edit modules</a>
+                    {% elif is_enrolled and object.modules.first %}
+                        <a href="{% url 'module_content_list' object.modules.first.id %}" class="button">Open course</a>
+                    {% elif request.user.is_authenticated %}
+                        <form method="post" action="{% url 'student_enroll_course' %}" class="inline-form">
+                            {% csrf_token %}
+                            {{ enroll_form }}
+                            <button type="submit" class="button">Enroll now</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="button">Log in to enroll</a>
+                    {% endif %}
                 </div>
             </section>
 
@@ -90,6 +102,32 @@
                     {% endfor %}
                 </div>
             </section>
+
+            {% if not is_owner %}
+                <section class="module enroll-panel">
+                    <div class="section-head">
+                        <div>
+                            <p class="eyebrow">Enrollment</p>
+                            <h2>Join this course</h2>
+                        </div>
+                    </div>
+                    {% if is_enrolled %}
+                        <p class="muted">You are already enrolled in this course.</p>
+                        {% if object.modules.first %}
+                            <a href="{% url 'module_content_list' object.modules.first.id %}" class="button">Open first module</a>
+                        {% endif %}
+                    {% elif request.user.is_authenticated %}
+                        <p class="muted">Enroll to access the course and continue into the module content.</p>
+                        <form method="post" action="{% url 'student_enroll_course' %}" class="enroll-form">
+                            {% csrf_token %}
+                            {{ enroll_form }}
+                            <button type="submit" class="button">Enroll in course</button>
+                        </form>
+                    {% else %}
+                        <p class="muted">Please <a href="{% url 'student_registration' %}">sign up</a> or <a href="{% url 'login' %}">log in</a> to enroll in this course.</p>
+                    {% endif %}
+                </section>
+            {% endif %}
         </section>
     </div>
 {% endblock %}

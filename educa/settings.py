@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,9 +30,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'students.apps.StudentsConfig',
+
+    "orbit",
+    "embed_video",
 ]
 
 MIDDLEWARE = [
+    'orbit.middleware.OrbitMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -115,3 +123,4 @@ DAISY_SETTINGS = {
     'DEFAULT_THEME': 'luxury',  # Always use this theme
 }
 
+LOGIN_REDIRECT_URL = reverse_lazy('course_list')
