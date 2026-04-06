@@ -153,10 +153,24 @@ p {
   align-items: start;
 }
 
+.student-dashboard {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
 .detail-shell {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
   gap: 3rem;
+  align-items: start;
+}
+
+.learning-shell {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 2rem;
   align-items: start;
 }
 
@@ -177,6 +191,16 @@ p {
   align-items: center;
   justify-content: space-between;
   min-height: 1.5rem;
+}
+
+.student-sidebar,
+.student-module-panel {
+  margin-bottom: 0;
+}
+
+.stats-stack {
+  display: grid;
+  gap: 0.9rem;
 }
 
 .library-sidebar {
@@ -653,6 +677,12 @@ input[type="checkbox"] {
   min-width: 0;
 }
 
+.learning-main {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 .detail-subjects {
   margin-bottom: 0;
 }
@@ -740,6 +770,79 @@ input[type="checkbox"] {
   gap: 0.75rem;
 }
 
+.empty-state {
+  min-height: 220px;
+  justify-content: center;
+}
+
+.student-banner {
+  margin-bottom: 0;
+}
+
+.lesson-stack {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.lesson-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 1.6rem;
+}
+
+.lesson-card-head {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.lesson-content {
+  color: var(--ink);
+}
+
+.lesson-content p:last-child {
+  margin-bottom: 0;
+}
+
+.content-rich {
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+.content-media-frame,
+.content-video-frame {
+  margin: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #f3f7f7;
+}
+
+.content-media {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.content-video-frame iframe,
+.content-video-frame video {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+}
+
+.content-download {
+  display: grid;
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.content-form-card {
+  max-width: 720px;
+}
+
 .enroll-panel {
   gap: 1rem;
 }
@@ -822,7 +925,9 @@ input[type="checkbox"] {
 
 @media (max-width: 720px) {
   .library-shell,
+  .student-dashboard,
   .detail-shell,
+  .learning-shell,
   .layout-grid,
   .course-hero,
   .detail-grid,

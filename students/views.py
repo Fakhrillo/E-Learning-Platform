@@ -51,15 +51,18 @@ class StudentCourseDetailView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(students_in=[self.request.user])
+        return qs.filter(students__in=[self.request.user])
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        course = self.get_object()
+        course = self.object
+        module = None
 
         if "module_id" in self.kwargs:
-            context['module'] = course.modules.get(id=self.kwargs['module_id'])
-        else:
-            context['module'] = course.modules.all()[0]
+            module = course.modules.filter(id=self.kwargs["module_id"]).first()
+        if module is None:
+            module = course.modules.first()
+
+        context["module"] = module
         return context
     

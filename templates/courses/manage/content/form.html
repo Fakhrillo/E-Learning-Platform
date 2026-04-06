@@ -5,11 +5,15 @@
 {% endblock %}
 
 {% block content %}
-    <h1>
-        {% if object %}Edit "{{ object.title }}" {% else %}Create{% endif %} content
-    </h1>
-    <div class="module form-card">
-        <h2>Content Info</h2>
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Content editor</p>
+            <h1>{% if object %}Edit "{{ object.title }}" {% else %}Create{% endif %} content</h1>
+            <p class="page-copy">Use this form to create or update the learning material attached to the current module.</p>
+        </div>
+    </section>
+    <div class="module form-card content-form-card">
+        <h2>Content info</h2>
         <form action="" method="post" enctype="multipart/form-data" class="form">
             {% csrf_token %}
             {{ form.as_p }}

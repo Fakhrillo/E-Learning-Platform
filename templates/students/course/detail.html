@@ -5,33 +5,72 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{{ module.title }}</h1>
+    <div class="learning-shell">
+        <aside class="contents student-module-panel">
+            <p class="eyebrow">Course navigation</p>
+            <h2 class="sidebar-title">{{ object.title }}</h2>
+            <p class="sidebar-copy">Move between modules from the left rail and continue where you left off.</p>
+            <ul class="module-list student-module-list">
+                {% for m in object.modules.all %}
+                    <li {% if m == module %}class="selected"{% endif %}>
+                        <a href="{% url "student_course_detail_module" object.id m.id %}" class="subject-link">
+                            <span>
+                                <span class="meta-label">Module {{ m.order|add:1 }}</span>
+                                {{ m.title }}
+                            </span>
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="empty">No modules yet.</li>
+                {% endfor %}
+            </ul>
+        </aside>
 
-    <div class="contents">
-        <h3>Modules</h3>
-        <ul id="modules">
-            {% for m in object.modules.all %}
-                <li data-id="{{ m.id }}" {% if m == module %}class="selected"{% endif %}>
-                    <a href="{% url "student_course_detail_module" object.id m.id %}">
-                        <span>
-                            Module <span class="order">{{ m.order|add:1 }}</span>
-                        </span>
-                        <br>
-                        {{ m.title }}
-                    </a>
-                </li>
-            {% empty %}
-                <li>No modules yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
+        <section class="learning-main">
+            <section class="detail-banner student-banner">
+                <div class="detail-banner-copy">
+                    <p class="eyebrow">Now studying</p>
+                    <h1>{% if module %}{{ module.title }}{% else %}{{ object.title }}{% endif %}</h1>
+                    <p class="page-copy">
+                        {% if module and module.description %}
+                            {{ module.description }}
+                        {% else %}
+                            Work through the materials in order and move across modules from the left sidebar.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="detail-banner-actions">
+                    <a href="{% url 'student_course_list' %}" class="button ghost">Back to my courses</a>
+                </div>
+            </section>
 
-    <div class="module">
-        {% for content in module.contents.all %}
-            {% with item=content.item %}
-                <h2>{{ item.title }}</h2>
-                {{ item.render }}
-            {% endwith %}
-        {% endfor %}
+            {% if module %}
+                <section class="lesson-stack">
+                    {% for content in module.contents.all %}
+                        {% with item=content.item %}
+                            <article class="lesson-card">
+                                <div class="lesson-card-head">
+                                    <span class="pill">Lesson {{ forloop.counter }}</span>
+                                    <h2>{{ item.title }}</h2>
+                                </div>
+                                <div class="lesson-content">
+                                    {{ item.render }}
+                                </div>
+                            </article>
+                        {% endwith %}
+                    {% empty %}
+                        <div class="module empty-state">
+                            <h2>No content yet</h2>
+                            <p>This module does not have any learning material yet.</p>
+                        </div>
+                    {% endfor %}
+                </section>
+            {% else %}
+                <div class="module empty-state">
+                    <h2>No module selected</h2>
+                    <p>This course does not contain any modules yet.</p>
+                </div>
+            {% endif %}
+        </section>
     </div>
 {% endblock %}

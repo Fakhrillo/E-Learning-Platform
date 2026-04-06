@@ -1,20 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %} My courses {% endblock %}
+{% block title %}My courses{% endblock %}
 
 {% block content %}
-    <h1>My courses</h1>
-    <div class="module">
-        {% for course in object_list %}
-            <div class="course-info">
-                <h3>{{ course.title }}</h3>
-                <p><a href="{% url 'student_course_detail' course.id %}"> Access contents </a></p>
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Learning space</p>
+            <h1>My courses</h1>
+            <p class="page-copy">Continue the courses you joined and jump directly into the module you want to study.</p>
+        </div>
+        <a href="{% url 'course_list' %}" class="button ghost">Browse catalog</a>
+    </section>
+
+    <section class="student-dashboard">
+        <aside class="contents student-sidebar">
+            <p class="eyebrow">Overview</p>
+            <h2 class="sidebar-title">Your progress</h2>
+            <p class="sidebar-copy">This area lists every course you are currently enrolled in.</p>
+            <div class="stats-stack">
+                <article class="meta-block">
+                    <span class="meta-label">Enrolled courses</span>
+                    <strong>{{ object_list|length }}</strong>
+                </article>
             </div>
-        {% empty %}
-            <p>
-                You are not enrolled in any courses yet.
-                <a href="{% url 'course_list' %}">Browse available courses</a> to enroll in a course.
-            </p>
-        {% endfor %}
-    </div>
+        </aside>
+
+        <div class="course-feed">
+            <div class="card-grid">
+                {% for course in object_list %}
+                    <article class="card course-card student-course-card">
+                        <div class="course-card-head">
+                            <span class="pill">{{ course.subject }}</span>
+                        </div>
+                        <h3 class="course-title">
+                            <a href="{% url 'student_course_detail' course.id %}">{{ course.title }}</a>
+                        </h3>
+                        <p class="course-overview">{{ course.overview|truncatewords:22 }}</p>
+                        <div class="course-meta">
+                            <div class="meta-block">
+                                <span class="meta-label">Modules</span>
+                                <strong>{{ course.modules.count }}</strong>
+                            </div>
+                            <div class="meta-block">
+                                <span class="meta-label">Instructor</span>
+                                <strong>{% firstof course.owner.get_full_name course.owner.username %}</strong>
+                            </div>
+                        </div>
+                        <div class="card-actions split">
+                            <a href="{% url 'student_course_detail' course.id %}" class="button edit-primary">Continue course</a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="module empty-state">
+                        <h2>No courses yet</h2>
+                        <p>You are not enrolled in any courses yet. Browse the catalog and join one to start learning.</p>
+                        <a href="{% url 'course_list' %}" class="button">Browse available courses</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
 {% endblock %}
