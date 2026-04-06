@@ -1,13 +1,14 @@
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
-from django.db.models import Count
-from courses.models import Subject, Course
-from django.shortcuts import get_object_or_404
-from django.core.cache import cache
+
+from courses.models import Course, Subject
 
 from .mixins import OwnerCourseMixin, OwnerCourseEditMixin
+from courses.services import course_list_queryset, get_cached_courses, get_cached_subjects
 
 from students.forms import CourseEnrollForm
 
@@ -15,6 +16,9 @@ from students.forms import CourseEnrollForm
 class ManageCourseListView(OwnerCourseMixin, ListView):
     template_name = "courses/manage/course/list.html"
     permission_required = "courses.view_course"
+
+    def get_queryset(self):
+        return course_list_queryset().filter(owner=self.request.user)
 
 
 class CourseCreateView(OwnerCourseEditMixin, CreateView):
@@ -34,29 +38,18 @@ class CourseListView(TemplateResponseMixin, View):
     template_name = "courses/manage/course/list.html"
 
     def get(self, request, subject=None):
-        subjects = cache.get("subjects")
-        if not subjects:
-            subjects = Subject.objects.annotate(total_courses=Count("courses"))
-            cache.set("subjects", subjects)
-
-        all_courses = Course.objects.annotate(total_modules=Count('modules'))
+        subjects = get_cached_subjects()
+        selected_subject = None
 
         if subject:
-            subject = get_object_or_404(Subject, slug=subject)
-            key = f"subject_{subject.id}_courses"
-            courses = cache.get(key)
-            if not courses:
-                courses = all_courses.filter(subject=subject)
-                cache.set(key, courses)
+            selected_subject = get_object_or_404(Subject, slug=subject)
+            courses = get_cached_courses(subject_id=selected_subject.id)
         else:
-            courses = cache.get("all_courses")
-            if not courses:
-                courses = all_courses
-                cache.set("all_courses", courses)
-        
+            courses = get_cached_courses()
+
         return self.render_to_response({
             "subjects": subjects,
-            "subject": subject,
+            "subject": selected_subject,
             "courses": courses
         })
     
@@ -64,12 +57,23 @@ class CourseDetailView(DetailView):
     model = Course
     template_name = "courses/manage/course/detail.html"
 
+    def get_queryset(self):
+        return (
+            Course.objects.select_related("subject", "owner")
+            .annotate(total_modules=Count("modules", distinct=True))
+            .prefetch_related("modules")
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        modules = list(self.object.modules.all())
+
         context["enroll_form"] = CourseEnrollForm(initial={"course": self.object})
-        context["subjects"] = Subject.objects.annotate(total_courses=Count("courses"))
+        context["subjects"] = get_cached_subjects()
         context["current_subject"] = self.object.subject
+        context["modules"] = modules
+        context["first_module"] = modules[0] if modules else None
         context["is_owner"] = user.is_authenticated and self.object.owner_id == user.id
         context["is_enrolled"] = user.is_authenticated and self.object.students.filter(id=user.id).exists()
         return context

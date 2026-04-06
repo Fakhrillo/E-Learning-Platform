@@ -37,8 +37,8 @@
                     {% if is_owner %}
                         <a href="{% url 'course_edit' object.id %}" class="button">Edit course</a>
                         <a href="{% url 'course_module_update' object.id %}" class="button ghost">Edit modules</a>
-                    {% elif is_enrolled and object.modules.first %}
-                        <a href="{% url 'module_content_list' object.modules.first.id %}" class="button">Open course</a>
+                    {% elif is_enrolled and first_module %}
+                        <a href="{% url 'student_course_detail_module' object.id first_module.id %}" class="button">Open course</a>
                     {% elif request.user.is_authenticated %}
                         <form method="post" action="{% url 'student_enroll_course' %}" class="inline-form">
                             {% csrf_token %}
@@ -62,14 +62,14 @@
                 </article>
                 <article class="meta-block">
                     <span class="meta-label">Modules</span>
-                    <strong>{{ object.modules.count }}</strong>
+                    <strong>{{ object.total_modules }}</strong>
                 </article>
             </section>
 
             <section class="story-panel">
                 <div class="story-panel-head">
                     <span class="pill">{{ object.subject.title }}</span>
-                    <span class="meta-inline">{{ object.modules.count }} module{{ object.modules.count|pluralize }}</span>
+                    <span class="meta-inline">{{ object.total_modules }} module{{ object.total_modules|pluralize }}</span>
                 </div>
                 <h2>Overview</h2>
                 <div class="rich-copy lead-copy">
@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div class="timeline">
-                    {% for module in object.modules.all %}
+                    {% for module in modules %}
                         <article class="timeline-item">
                             <div class="timeline-marker">{{ forloop.counter }}</div>
                             <div class="timeline-body">
@@ -113,8 +113,8 @@
                     </div>
                     {% if is_enrolled %}
                         <p class="muted">You are already enrolled in this course.</p>
-                        {% if object.modules.first %}
-                            <a href="{% url 'module_content_list' object.modules.first.id %}" class="button">Open first module</a>
+                        {% if first_module %}
+                            <a href="{% url 'student_course_detail_module' object.id first_module.id %}" class="button">Open first module</a>
                         {% endif %}
                     {% elif request.user.is_authenticated %}
                         <p class="muted">Enroll to access the course and continue into the module content.</p>

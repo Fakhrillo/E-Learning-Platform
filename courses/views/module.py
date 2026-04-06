@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin, View
 
 from courses.forms import ModuleFormSet
-from courses.models import Course, Module
+from courses.models import Content, Course, Module
+from courses.services import attach_content_items
 
 
 class CourseModuleUpdateView(TemplateResponseMixin, View):
@@ -32,5 +33,12 @@ class ModuleContentListView(TemplateResponseMixin, View):
     template_name = "courses/manage/module/content_list.html"
 
     def get(self, request, module_id):
-        module = get_object_or_404(Module, id=module_id, course__owner=request.user)
-        return self.render_to_response({"module": module})
+        module = get_object_or_404(
+            Module.objects.select_related("course").prefetch_related("course__modules"),
+            id=module_id,
+            course__owner=request.user,
+        )
+        module_contents = attach_content_items(
+            Content.objects.filter(module=module).select_related("content_type")
+        )
+        return self.render_to_response({"module": module, "module_contents": module_contents})

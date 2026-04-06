@@ -12,7 +12,7 @@
             <h2 class="sidebar-title">{{ object.title }}</h2>
             <p class="sidebar-copy">Move between modules from the left rail and continue where you left off.</p>
             <ul class="module-list student-module-list">
-                {% for m in object.modules.all %}
+                {% for m in modules %}
                     <li {% if m == module %}class="selected"{% endif %}>
                         <a href="{% url "student_course_detail_module" object.id m.id %}" class="subject-link">
                             <span>
@@ -47,9 +47,9 @@
 
             {% if module %}
                 <section class="lesson-stack">
-                    {% cache 600 module_contents module %}
-                        {% for content in module.contents.all %}
-                            {% with item=content.item %}
+                    {% cache 600 module_contents module.id %}
+                        {% for content in module_contents %}
+                            {% with item=content.prefetched_item %}
                                 <article class="lesson-card">
                                     <div class="lesson-card-head">
                                         <span class="pill">Lesson {{ forloop.counter }}</span>

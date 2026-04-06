@@ -115,8 +115,8 @@
                             <summary class="icon-button" aria-label="More options">...</summary>
                             <div class="menu-list" role="menu">
                                 <a href="{% url 'course_detail' course.slug %}" class="menu-item">Open course</a>
-                                {% if course.modules.count > 0 %}
-                                    <a href="{% url 'module_content_list' course.modules.first.id %}" class="menu-item">Manage contents</a>
+                                {% if course.first_module_id %}
+                                    <a href="{% url 'module_content_list' course.first_module_id %}" class="menu-item">Manage contents</a>
                                 {% endif %}
                                 <a href="{% url 'course_module_update' course.id %}" class="menu-item">Edit modules</a>
                                 <a href="{% url 'course_delete' course.id %}" class="menu-item danger-link">Delete</a>
@@ -155,8 +155,8 @@
                         <summary class="icon-button" aria-label="More options">...</summary>
                         <div class="menu-list" role="menu">
                             <a href="{% url 'course_detail' course.slug %}" class="menu-item">Open course</a>
-                            {% if course.modules.count > 0 %}
-                                <a href="{% url 'module_content_list' course.modules.first.id %}" class="menu-item">Manage contents</a>
+                            {% if course.first_module_id %}
+                                <a href="{% url 'module_content_list' course.first_module_id %}" class="menu-item">Manage contents</a>
                             {% endif %}
                             <a href="{% url 'course_module_update' course.id %}" class="menu-item">Edit modules</a>
                             <a href="{% url 'course_delete' course.id %}" class="menu-item danger-link">Delete</a>

@@ -29,9 +29,9 @@
         <h2>Module {{ module.order|add:1 }}: {{ module.title }}</h2>
         <h3>Module contents:</h3>
         <div id="module-contents" class="content-list">
-            {% for content in module.contents.all %}
+            {% for content in module_contents %}
                 <div data-id="{{ content.id }}" class="content-item">
-                    {% with item=content.item %}
+                    {% with item=content.prefetched_item %}
                         <p>{{ item }} ({{ item|model_name }})</p>
                         <div class="actions">
                             <a href="{% url "content_update" module.id item|model_name item.id %}" class="button sm">Edit</a>
