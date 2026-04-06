@@ -35,13 +35,16 @@ INSTALLED_APPS = [
 
     "orbit",
     "embed_video",
+    "redisboard",
 ]
 
 MIDDLEWARE = [
     'orbit.middleware.OrbitMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -124,3 +127,14 @@ DAISY_SETTINGS = {
 }
 
 LOGIN_REDIRECT_URL = reverse_lazy('course_list')
+
+CACHE = {
+    'default': {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    }
+}
+
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 60 * 15  # Cache for 15 minutes
+CACHE_MIDDLEWARE_KEY_PREFIX = 'educa'
