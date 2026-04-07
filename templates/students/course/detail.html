@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load cache %}
 
 {% block title %}
     {{ object.title }}
@@ -47,26 +46,24 @@
 
             {% if module %}
                 <section class="lesson-stack">
-                    {% cache 600 module_contents module.id %}
-                        {% for content in module_contents %}
-                            {% with item=content.prefetched_item %}
-                                <article class="lesson-card">
-                                    <div class="lesson-card-head">
-                                        <span class="pill">Lesson {{ forloop.counter }}</span>
-                                        <h2>{{ item.title }}</h2>
-                                    </div>
-                                    <div class="lesson-content">
-                                        {{ item.render }}
-                                    </div>
-                                </article>
-                            {% endwith %}
-                        {% empty %}
-                            <div class="module empty-state">
-                                <h2>No content yet</h2>
-                                <p>This module does not have any learning material yet.</p>
-                            </div>
-                        {% endfor %}
-                    {% endcache %}
+                    {% for content in module_contents %}
+                        {% with item=content.prefetched_item %}
+                            <article class="lesson-card">
+                                <div class="lesson-card-head">
+                                    <span class="pill">Lesson {{ forloop.counter }}</span>
+                                    <h2>{{ item.title }}</h2>
+                                </div>
+                                <div class="lesson-content">
+                                    {{ item.render }}
+                                </div>
+                            </article>
+                        {% endwith %}
+                    {% empty %}
+                        <div class="module empty-state">
+                            <h2>No content yet</h2>
+                            <p>This module does not have any learning material yet.</p>
+                        </div>
+                    {% endfor %}
                 </section>
             {% else %}
                 <div class="module empty-state">
